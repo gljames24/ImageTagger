@@ -6,7 +6,7 @@ using namespace std;
 
 #define sigLen 20
 const regex JPEG_SIGNATURE ("ÿØÿ.+"); // This is the "magic" number at the start of every jpg file
-const regex PNG_SIGNATURE (".*PNG.*\n.?\n\0\0\0.+"); // This sequence is found a
+const regex PNG_SIGNATURE (".?PNG.?\n.?\n\0\0\0.+"); // This the PNG signature
 
 bool isJPEG(std::string header);
 bool isPNG(std::string header);
