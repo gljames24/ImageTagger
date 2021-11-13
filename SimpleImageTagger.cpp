@@ -1,27 +1,38 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <regex>
 using namespace std;
 
-bool isJPEG(std::fstream image);
-bool isPNG(std::fstream image);
+#define sigLen 20
+const regex JPEG_SIGNATURE ("ÿØÿ.+"); // This is the "magic" number at the start of every jpg file
+const regex PNG_SIGNATURE (".*PNG.*\n.?\n\0\0\0.+"); // This sequence is found a
+
+bool isJPEG(std::string header);
+bool isPNG(std::string header);
 
 int main (){
   std::fstream image;
-  std::string line, someString;
-  std::string fileLoc;
-  
+  std::string imagePath;
+  //This is only for testing and should be removed and replaced with CLI arguments
   cout << "Enter file location: ";
-  cin >> fileLoc;
+  cin >> imagePath;
+  cout << "Looking at file in location "<< imagePath << endl;
+  image.open(imagePath, ios::in | ios::app);  //The path to your file goes here
 
-  image.open(fileLoc, ios::in | ios::app);  //The path to your file goes here
-
-  if (image.is_open()){  //You don't have to ask if the file is open but it's more secure
-  	if (isJPEG){
-		cout << "This file is a JPG" << endl;	
+  if (image.is_open()){  //Check if image file opened
+    char header[sigLen]; //
+    image.read(header, sigLen);
+    string ext = imagePath.substr(imagePath.find_last_of(".")+1);
+    cout << "Header: " << header << " Extension: " << ext << endl;
+  	if (isJPEG(header) &&  (ext == "jpg" || ext == "jpeg") ){
+		  cout << "This file is a JPEG" << endl;	
+  	}
+    if (isPNG(header) && ext.compare("png")){
+		  cout << "This file is a PNG" << endl;	
   	}
   	else{
-  		cout << "This file is not a JPG" << endl;	
+  		cout << "This file is not a recognized image" << endl;	
   	}
   
   } 
@@ -31,9 +42,9 @@ int main (){
   return 0;
 }
 
-bool isJPEG(std::fstream image){
-  return image.get() == (char)0xFF && image.get() == (char)0xD8 && image.get() == (char)0xFF;
+bool isJPEG(string header){
+  return regex_match(header,JPEG_SIGNATURE);
 }
-bool isPNG(std::fstream image){
-  return image.get() == (char)0xFF && image.get() == (char)0xD8 && image.get() == (char)0xFF;
+bool isPNG(string header){
+  return regex_match(header,PNG_SIGNATURE);
 }
