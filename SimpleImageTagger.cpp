@@ -3,6 +3,9 @@
 #include <string>
 using namespace std;
 
+bool isJPEG(std::fstream image);
+bool isPNG(std::fstream image);
+
 int main (){
   std::fstream image;
   std::string line, someString;
@@ -14,7 +17,7 @@ int main (){
   image.open(fileLoc, ios::in | ios::app);  //The path to your file goes here
 
   if (image.is_open()){  //You don't have to ask if the file is open but it's more secure
-  	if (image.get() == (char)0xFF && image.get() == (char)0xD8 && image.get() == (char)0xFF){
+  	if (isJPEG){
 		cout << "This file is a JPG" << endl;	
   	}
   	else{
@@ -26,4 +29,11 @@ int main (){
 
   image.close();
   return 0;
+}
+
+bool isJPEG(std::fstream image){
+  return image.get() == (char)0xFF && image.get() == (char)0xD8 && image.get() == (char)0xFF;
+}
+bool isPNG(std::fstream image){
+  return image.get() == (char)0xFF && image.get() == (char)0xD8 && image.get() == (char)0xFF;
 }
