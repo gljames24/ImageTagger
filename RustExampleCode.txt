@@ -1,0 +1,89 @@
+const METADATA: [(&str, &str); 6] = [
+    ("time", "1:13:47 AM"),
+    ("date", "2020-05-13"),
+    ("tags", "dogs, cats"),
+    ("title", "Dogs and Cats"),
+    ("description", "Dogs and Cats"),
+    ("link", "https://www.rust-lang.org/"),
+];
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // This is given from the jpg api
+    let mut metadata: Vec<(String, String)> = METADATA
+        .iter()
+        .map(|(s1, s2)| (s1.to_string(), s2.to_string()))
+        .collect();
+
+    // We want to print the metadata for the user
+    // Each metadata should have a number
+    // Then the user selects the number that they want to edit
+    metadata.iter().enumerate().for_each(|(i, (key, value))| {
+        println!("{}. {}: {}", i + 1, key, value);
+    });
+
+    let mut final_number = metadata.len();
+
+    // Then print another choice which is to add a new metadata
+    final_number += 1;
+    let idx_add_new_metadata = final_number;
+    println!("{}. (Add new metadata)", idx_add_new_metadata);
+    // Then print another choice which is to delete a metadata
+    final_number += 1;
+    let idx_delete_metadata = final_number;
+    println!("{}. (Delete metadata)", idx_delete_metadata);
+
+    // We want to get the user's input
+    println!("Please select a number to edit");
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input)?;
+
+    // Parse the input to an integer
+    let idx = input.trim().parse::<usize>()?;
+
+    let mut input = String::new();
+
+    // Let the user edit the metadata
+    match idx {
+        // If the user selects a number that is less than the length of the metadata
+        // We want to edit the metadata
+        idx if idx - 1 < metadata.len() => {
+            println!("Please enter a new value for \"{}\"", metadata[idx].0);
+            std::io::stdin().read_line(&mut input)?;
+
+            // Update the metadata
+            metadata[idx].1 = input.trim().to_string();
+        }
+        // If the user selects a number that is greater than the length of the metadata
+        // We want to add a new metadata
+        idx if idx == idx_add_new_metadata => {
+            let mut input_key = String::new();
+
+            println!("Please enter a new key");
+            std::io::stdin().read_line(&mut input_key)?;
+
+            println!("Please enter a new value");
+            std::io::stdin().read_line(&mut input)?;
+
+            // Add the new metadata
+            metadata.push((input_key.trim().to_string(), input.trim().to_string()));
+        }
+        idx if idx == idx_delete_metadata => {
+            // Delete the metadata
+            println!("Please enter the number of the metadata you want to delete");
+            std::io::stdin().read_line(&mut input)?;
+
+            let idx = input.trim().parse::<usize>()?;
+
+            // Remove the metadata
+            metadata.remove(idx - 1);
+        }
+        _ => {}
+    }
+
+    // Print the new metadata
+    metadata.iter().enumerate().for_each(|(i, (key, value))| {
+        println!("{}. {}: {}", i + 1, key, value);
+    });
+
+    Ok(())
+}
