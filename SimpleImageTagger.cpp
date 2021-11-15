@@ -6,7 +6,7 @@ using namespace std;
 
 #define sigLen 20
 const regex JPEG_SIGNATURE ("ÿØÿ.+"); // This is the "magic" number at the start of every jpg file
-const regex PNG_SIGNATURE (".?PNG.?\n.?\n\0\0\0.+"); // This the PNG signature
+const regex PNG_SIGNATURE (".?PNG\n"/*.?\n.?\n\0\0\0.+"*/); // This the PNG signature
 
 bool isJPEG(std::string header);
 bool isPNG(std::string header);
@@ -28,7 +28,7 @@ int main (){
   	if (isJPEG(header) &&  (ext == "jpg" || ext == "jpeg") ){
 		  cout << "This file is a JPEG" << endl;	
   	}
-    if (isPNG(header) && ext.compare("png")){
+    else if (isPNG(header) && ext == "png"){
 		  cout << "This file is a PNG" << endl;	
   	}
   	else{
