@@ -77,8 +77,7 @@ int main(int argc, char * const argv[]){
 }
 
 bool isJPEG(string header, string ext){
-  //cout << "Header Value" << " " << (int)header[0] << " " << (int)header[1] << " " << (int)header[2] << " " << (int)header[3] << endl;
-	const char JPEG_SIGNATURE[sigLen] = {-1,-40,-1,-32}; // This is the "magic" number at the start of every jpg file
+  const char JPEG_SIGNATURE[sigLen] = {-1,-40,-1,-32}; // This is the "magic" number at the start of every jpg file
   return header == JPEG_SIGNATURE && (ext == "jpg" || ext == "jpeg");
 }
 bool isPNG(string header, string ext){
