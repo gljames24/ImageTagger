@@ -61,5 +61,5 @@ bool isJPEG(string header, string ext){
   return header == JPEG_SIGNATURE && (ext == "jpg" || ext == "jpeg");
 }
 bool isPNG(string header, string ext){
-  return true/*regex_match(header,PNG_SIGNATURE)*/;
+  return true && ext == "png"/*regex_match(header,PNG_SIGNATURE)*/;
 }
