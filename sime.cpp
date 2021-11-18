@@ -9,14 +9,15 @@ using namespace std;
 //const regex PNG_SIGNATURE (".*PNG\n*.*"/*.?\n.?\n\0\0\0.+"*/); // This the PNG signature
 
 bool isJPEG(string header, string ext);
-bool isPNG(string header);
+bool isPNG(string header, string ext);
 
-enum extension{jpeg,png};
+enum extension{jpeg,png,err};
 
 struct Image{
 	string path;
 	fstream raw;
 	enum extension ext;
+	
 };
 
 int main(int argc, char * const argv[]){
@@ -34,15 +35,17 @@ int main(int argc, char * const argv[]){
     image.raw.read(header,sigLen);
     string ext = image.path.substr(image.path.find_last_of(".")+1);
     //cout << "Header: " << header << " Extension: " << ext << endl;
-  	if (isJPEG(header, ext)){
-		  cout << "This file is a JPEG" << endl;	
-		  
-  	}
-    else if (isPNG(header) && ext == "png"){
-		  cout << "This file is a PNG" << endl;	
-  	}
-  	else{
-  		cout << "This file is not a recognized image" << endl;	
+  	image.ext = isJPEG(header, ext)? jpeg : isPNG(header, ext)? png : err;
+  	switch (image.ext){
+  		case jpeg:
+  			cout << "This file is a JPEG" << endl;
+  			break;
+  		case png:
+  			 cout << "This file is a PNG" << endl;
+  			 break;
+  		default:
+  			cout << "This file is not a recognized image" << endl;
+  			return -1;
   	}
   
   } 
@@ -57,6 +60,6 @@ bool isJPEG(string header, string ext){
 	const char JPEG_SIGNATURE[sigLen] = {-1,-40,-1,-32}; // This is the "magic" number at the start of every jpg file
   return header == JPEG_SIGNATURE && (ext == "jpg" || ext == "jpeg");
 }
-bool isPNG(string header){
+bool isPNG(string header, string ext){
   return true/*regex_match(header,PNG_SIGNATURE)*/;
 }
