@@ -47,7 +47,28 @@ int main(int argc, char * const argv[]){
   			cout << "This file is not a recognized image" << endl;
   			return -1;
   	}
-  
+  	char option = 'q';
+  	for(int x=1;x<argc-1;x++){
+			//cout << argv[x] << endl;
+			string arg = argv[x];
+			if (arg.length() == 2 && arg.at(0) == '-'){
+				option = arg.at(1);
+				//cout << "Selection: " << option << endl;
+			}
+			else{
+				//cout << "Selection: " << option << endl;
+				switch(option){
+					case 'k':
+						cout << "Keyword: " << arg << endl;
+						break;
+					case 'c':
+						cout << "This is the creator name option" << endl;
+						break;
+					default:
+						cout << "invalid option" << endl;
+				}
+			}
+		}
   } 
   else cerr << "Your file couldn't be opened" << endl;
 
@@ -61,5 +82,5 @@ bool isJPEG(string header, string ext){
   return header == JPEG_SIGNATURE && (ext == "jpg" || ext == "jpeg");
 }
 bool isPNG(string header, string ext){
-  return true && ext == "png"/*regex_match(header,PNG_SIGNATURE)*/;
+  return header.substr(1,3) == "PNG" && ext == "png";
 }
