@@ -2,33 +2,39 @@
 #include <fstream>
 #include <string>
 #include <regex>
+#include <vector>
 using namespace std;
 
 #define sigLen 4
-
-//const regex PNG_SIGNATURE (".*PNG\n*.*"/*.?\n.?\n\0\0\0.+"*/); // This the PNG signature
 
 bool isJPEG(string header, string ext);
 bool isPNG(string header, string ext);
 
 enum extension{jpeg,png,err};
+enum action{Print = 'p', Remove = 'r',Clear = 'R', Append = 'a'};//For action taken on image metadata: Print, Remove, Clear, and Append
 
 struct Image{
 	string path;
 	fstream raw;
 	enum extension ext;
-	
+	string creator;
+	string time;
+	string title;
+	vector<string> keywords;
 };
 
 int main(int argc, char * const argv[]){
+	//Check if there are enough arguments
 	if(argc == 1){
 		cerr << "No arguments given!" << endl;
 		return -1;
 	} 
 	
+	//Create Image object
 	struct Image image;
   image.path = argv[argc-1];
   
+  //Open Image path and check if extension is a valid supported image
   image.raw.open(image.path, ios::in | ios::app);  //Open file using user-defined path
   if (image.raw.is_open()){  //Check if image file opened
     char header[sigLen];
@@ -45,28 +51,48 @@ int main(int argc, char * const argv[]){
   			 break;
   		default:
   			cout << "This file is not a recognized image" << endl;
-  			return -1;
-  	}
-  	char option = 'q';
-  	for(int x=1;x<argc-1;x++){
-			//cout << argv[x] << endl;
+				return -1;
+		}
+		
+		//Parse user arguments and take appropriate action
+		
+		//Main argument actions Print, Remove, Clear, and Append
+		enum action act = Print;
+		int x=1;
+		if(regex_match(argv[x],regex("-(p|r|R|a)"))){
+			act = static_cast<action>(argv[x][1]);
+			cout << "Action Option: " << (char)act << endl;
+			x++;
+		}
+		
+		//Metadata options: Keywords, Creator Name, Date and Time, and Title
+		char option = 'q';//Unused option to avoid undefined behavior
+		
+		//Read in arguments until another option is found or until it reaches the last/path argument
+		for(;x<argc-1;x++){
 			string arg = argv[x];
 			if (arg.length() == 2 && arg.at(0) == '-'){
 				option = arg.at(1);
-				//cout << "Selection: " << option << endl;
 			}
+			//Take in arguments for selected option
 			else{
-				//cout << "Selection: " << option << endl;
 				switch(option){
 					case 'k':
-						cout << "Keyword: " << arg << endl;
+						cout << "Keyword Entered: " << arg << endl;
 						break;
 					case 'c':
-						cout << "This is the creator name option" << endl;
+						cout << "Creator Name Entered: " << arg << endl;
+						break;
+					case 't':
+						cout << "Time Entered: " << arg << endl;
+						break;
+					case 'T':
+						cout << "Title Entered: " << arg << endl;
 						break;
 					default:
 						cout << "invalid option" << endl;
 				}
+				
 			}
 		}
   } 
@@ -77,7 +103,7 @@ int main(int argc, char * const argv[]){
 }
 
 bool isJPEG(string header, string ext){
-  const char JPEG_SIGNATURE[sigLen] = {-1,-40,-1,-32}; // This is the "magic" number at the start of every jpg file
+	const char JPEG_SIGNATURE[sigLen] = {-1,-40,-1,-32}; // This is the "magic" number at the start of every jpg file
   return header == JPEG_SIGNATURE && (ext == "jpg" || ext == "jpeg");
 }
 bool isPNG(string header, string ext){
