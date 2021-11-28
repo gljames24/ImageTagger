@@ -3,6 +3,9 @@
 #include <string>
 #include <regex>
 #include <vector>
+#include <exiv2/exiv2.hpp>
+#include <iomanip>
+#include <cassert>
 using namespace std;
 
 #define sigLen 4
@@ -17,6 +20,8 @@ struct Image{
 	string path;
 	fstream raw;
 	enum extension ext;
+	Exiv2::Image::AutoPtr metadata;
+	Exiv2::IptcData iptcData;
 	string creator;
 	string time;
 	string title;
@@ -30,76 +35,105 @@ int main(int argc, char * const argv[]){
 		return -1;
 	} 
 	
-	//Create Image object
+  	//Create Image object
 	struct Image image;
-  image.path = argv[argc-1];
-  
-  //Open Image path and check if extension is a valid supported image
-  image.raw.open(image.path, ios::in | ios::app);  //Open file using user-defined path
-  if (image.raw.is_open()){  //Check if image file opened
-    char header[sigLen];
-    image.raw.read(header,sigLen);
-    string ext = image.path.substr(image.path.find_last_of(".")+1);
-    //cout << "Header: " << header << " Extension: " << ext << endl;
-  	image.ext = isJPEG(header, ext)? jpeg : isPNG(header, ext)? png : err;
-  	switch (image.ext){
-  		case jpeg:
-  			cout << "This file is a JPEG" << endl;
-  			break;
-  		case png:
-  			 cout << "This file is a PNG" << endl;
-  			 break;
-  		default:
-  			cout << "This file is not a recognized image" << endl;
-				return -1;
-		}
-		
-		//Parse user arguments and take appropriate action
-		
-		//Main argument actions Print, Remove, Clear, and Append
-		enum action act = Print;
-		int x=1;
-		if(regex_match(argv[x],regex("-(p|r|R|a)"))){
-			act = static_cast<action>(argv[x][1]);
-			cout << "Action Option: " << (char)act << endl;
-			x++;
-		}
-		
-		//Metadata options: Keywords, Creator Name, Date and Time, and Title
-		char option = 'q';//Unused option to avoid undefined behavior
-		
-		//Read in arguments until another option is found or until it reaches the last/path argument
-		for(;x<argc-1;x++){
-			string arg = argv[x];
-			if (arg.length() == 2 && arg.at(0) == '-'){
-				option = arg.at(1);
+	image.path = argv[argc-1];
+  	
+	try {
+		Exiv2::XmpParser::initialize();
+		::atexit(Exiv2::XmpParser::terminate);
+		#ifdef EXV_ENABLE_BMFF
+	   		Exiv2::enableBMFF();
+		#endif
+	
+	 	//Open Image path
+		image.raw.open(image.path, ios::in | ios::app);  //Open file using user-defined path
+		if (image.raw.is_open()){
+			//Check file signature and extension
+			char header[sigLen];
+			image.raw.read(header,sigLen);
+			string ext = image.path.substr(image.path.find_last_of(".")+1);
+	  		image.ext = isJPEG(header, ext)? jpeg : isPNG(header, ext)? png : err;
+		  	switch (image.ext){
+		  		case jpeg:
+		  			cout << "This file is a JPEG" << endl;
+		  			break;
+		  		case png:
+		  			 cout << "This file is a PNG" << endl;
+		  			 break;
+		  		default:
+		  			cout << "This file is not a recognized image" << endl;
+					return -1;
 			}
-			//Take in arguments for selected option
-			else{
-				switch(option){
-					case 'k':
-						cout << "Keyword Entered: " << arg << endl;
-						break;
-					case 'c':
-						cout << "Creator Name Entered: " << arg << endl;
-						break;
-					case 't':
-						cout << "Time Entered: " << arg << endl;
-						break;
-					case 'T':
-						cout << "Title Entered: " << arg << endl;
-						break;
-					default:
-						cout << "invalid option" << endl;
-				}
-				
-			}
-		}
-  } 
-  else cerr << "Your file couldn't be opened" << endl;
+			
+			image.metadata = Exiv2::ImageFactory::open(image.path);
+  			assert (image.metadata.get() != 0);
+			image.metadata->readMetadata();
+ 
+			//Exiv2::IptcData &iptcData = image.metadata->iptcData();
+			//image.iptcData = iptcData;
+			//if (image.iptcData.empty()) {
+			//	std::string error(argv[argc-1]);
+			//	error += ": No IPTC data found in the file";
+			//	throw Exiv2::Error(Exiv2::kerErrorMessage, error);
+			//}
 
-  image.raw.close();
-  return 0;
+			//Exiv2::IptcData::iterator end = image.iptcData.end();
+			//for (Exiv2::IptcData::iterator md = image.iptcData.begin(); md != end-1; ++md) {
+			//	std::cout << md->value() << endl;
+                
+			// }
+			
+			//Parse user arguments and take appropriate action
+			
+			//Main argument actions Print, Remove, Clear, and Append
+			enum action act = Print;
+			int x=1;
+			if(regex_match(argv[x],regex("-(p|r|R|a)"))){
+				act = static_cast<action>(argv[x][1]);
+				cout << "Action Option: " << (char)act << endl;
+				x++;
+			}
+			
+			//Metadata options: Keywords, Creator Name, Date and Time, and Title
+			char option = 'q';//Unused option to avoid undefined behavior
+			
+			//Read in arguments until another option is found or until it reaches the last/path argument
+			for(;x<argc-1;x++){
+				string arg = argv[x];
+				if (arg.length() == 2 && arg.at(0) == '-'){
+					option = arg.at(1);
+				}
+				//Take in arguments for selected option
+				else{
+					switch(option){
+						case 'k':
+							cout << "Keyword Entered: " << arg << endl;
+							break;
+						case 'C':
+							cout << "Creator Name Entered: " << arg << endl;
+							break;
+						case 'd':
+							cout << "Date and Time Entered: " << arg << endl;
+							break;
+						case 'T':
+							cout << "Title Entered: " << arg << endl;
+							break;
+						default:
+							cout << "invalid option" << endl;
+							
+					}
+				}
+			}
+		}
+		else cerr << "Your file couldn't be opened" << endl;
+	}
+	catch (Exiv2::AnyError& e) {
+    std::cout << "Caught Exiv2 exception '" << e << "'\n";
+    return -1;
+	}
+	image.raw.close();
+	return 0;
 }
 
 bool isJPEG(string header, string ext){
