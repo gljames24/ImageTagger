@@ -21,9 +21,9 @@ class Image{
 		enum extension ext;
 		Exiv2::Image::AutoPtr metadata;
 		Exiv2::IptcData iptcData;
-		string creator;
-		string time;
-		string title;
+		string creator = "";
+		string time = "";
+		string title = "";
 		vector<string> keywords;
 		
 		//Member Functions
@@ -44,68 +44,68 @@ class Image{
 //		}
 		
 	//Get all member variables from path
-	void init(string path){//Couldn't get image to use a constructor
-		this->path = path;
-	
-			//Open Image path
-		raw.open(this->path, ios::in | ios::app);  //Open file using user-defined path
-		if (raw.is_open()){
-			//Check file signature and extension
-			char header[sigLen];
-			raw.read(header,sigLen);
-			string ext = this->path.substr(this->path.find_last_of(".")+1);
-	  		ext = this->isJPEG(header, ext)? jpeg : this->isPNG(header, ext)? png : err;
-		  	switch (ext){
-		  		case jpeg:
-		  			cout << "This file is a JPEG" << endl;
-		  			break;
-		  		case png:
-		  			 cout << "This file is a PNG" << endl;
-		  			 break;
-		  		default:
-		  			cout << "This file is not a recognized image" << endl;
-					//return -1;
-			}
-				
-			metadata = Exiv2::ImageFactory::open(this->path);
-  			assert (metadata.get() != 0);
-			metadata->readMetadata();
-	 
-			Exiv2::IptcData &iptcDataR = this->metadata->iptcData();
-			iptcData = iptcDataR;
-			
-			
-		}
-		else{
-			raw.close();
-			cerr << "Your file couldn't be opened" << endl;
-		}	
-	}
+//	void init(string path){//Couldn't get image to use a constructor
+//		this->path = path;
+//	
+//			//Open Image path
+//		raw.open(this->path, ios::in | ios::app);  //Open file using user-defined path
+//		if (raw.is_open()){
+//			//Check file signature and extension
+//			char header[sigLen];
+//			raw.read(header,sigLen);
+//			string ext = this->path.substr(this->path.find_last_of(".")+1);
+//	  		ext = this->isJPEG(header, ext)? jpeg : this->isPNG(header, ext)? png : err;
+//		  	switch (ext){
+//		  		case jpeg:
+//		  			cout << "This file is a JPEG" << endl;
+//		  			break;
+//		  		case png:
+//		  			 cout << "This file is a PNG" << endl;
+//		  			 break;
+//		  		default:
+//		  			cout << "This file is not a recognized image" << endl;
+//					//return -1;
+//			}
+//				
+//			metadata = Exiv2::ImageFactory::open(this->path);
+//  			assert (metadata.get() != 0);
+//			metadata->readMetadata();
+//	 
+//			Exiv2::IptcData &iptcDataR = this->metadata->iptcData();
+//			iptcData = iptcDataR;
+//			
+//			
+//		}
+//		else{
+//			raw.close();
+//			cerr << "Your file couldn't be opened" << endl;
+//		}	
+//	}
 	
 };
 
-virtual class Option{	
+class Option{	
 	public:
-	virtual void print(Image image);
-	virtual void append(Image image,string tags);
-	virtual void remove(Image image,string tags);
-	virtual void removeAll(Image image);
+	virtual void print(Image *image);
+	virtual void append(Image *image,string tags);
+	virtual void remove(Image *image,string tags);
+	virtual void removeAll(Image *image);
 };
 
 class Keywords: public Option{
 	public:
-	void print(Image image){
-		for(string keyword: image.keywords){
+	void print(Image *image){
+		for(string keyword: image->keywords){
 			cout << keyword << endl;
 		}
 	}
-	void append(Image image,string tags){
+	void append(Image *image,string tags){
 	
 	}
-	void remove(Image image,string tags){
+	void remove(Image *image,string tags){
 	
 	}
-	void removeAll(Image image){
+	void removeAll(Image *image){
 	
 	}
 };
@@ -116,8 +116,6 @@ int main(int argc, char * const argv[]){
 		cerr << "No arguments given!" << endl;
 		return -1;
 	} 
-	
-  	
   	
 	try {
 		Exiv2::XmpParser::initialize();
@@ -128,17 +126,17 @@ int main(int argc, char * const argv[]){
 		
 		//Create Image object
 		Image image;
-		image.init(argv[argc-1]);
+		//image.init(argv[argc-1]);
 			
 		//Keywords and Print used as default behavior
 		Keywords keywords;
-		Option option;
-		*option = &keywords;
+		Option *option;
+		option = &keywords;
 		enum action act = Print;
 		
 		//Print keyword metadata by default if there are no options given
 		if(argc == 2){
-			option.print();
+			option->print(&image);
 			return 0;
 		}
 		
@@ -162,7 +160,7 @@ int main(int argc, char * const argv[]){
 				switch(opt){
 					case 'k':{
 						cout << "Keyword Entered: " << arg << endl; 
-						*option = &keywords;
+						option = &keywords;
 						break;
 					}
 					case 'C':{
@@ -185,22 +183,22 @@ int main(int argc, char * const argv[]){
 				//Main argument actions Print, Remove, Clear, and Append
 				switch(act){
                    	case 'p':{
-                   		option.print(image);
+                   		option->print(&image);
                         break;
                     }
                     case 'R':{
                        	cout << "Remove All:Not yet implemented" << endl;
-                       	option.removeAll(image);
+                       	option->removeAll(&image);
                        	break;
                     }
                     case 'a':{
                        	cout << "Append:Not yet implemented" << endl;
-                       	option.append(image,arg);
+                       	option->append(&image,arg);
                        	break;
                     }
                     case 'r':{
                        	cout << "Remove:Not yet implemented" << endl;
-                       	option.remove(image,arg);
+                       	option->remove(&image,arg);
                        	break;
                     }
                         
