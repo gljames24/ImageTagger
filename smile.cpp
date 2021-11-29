@@ -70,19 +70,8 @@ int main(int argc, char * const argv[]){
   			assert (image.metadata.get() != 0);
 			image.metadata->readMetadata();
  
-			//Exiv2::IptcData &iptcData = image.metadata->iptcData();
-			//image.iptcData = iptcData;
-			//if (image.iptcData.empty()) {
-			//	std::string error(argv[argc-1]);
-			//	error += ": No IPTC data found in the file";
-			//	throw Exiv2::Error(Exiv2::kerErrorMessage, error);
-			//}
-
-			//Exiv2::IptcData::iterator end = image.iptcData.end();
-			//for (Exiv2::IptcData::iterator md = image.iptcData.begin(); md != end-1; ++md) {
-			//	std::cout << md->value() << endl;
-                
-			// }
+			Exiv2::IptcData &iptcData = image.metadata->iptcData();
+			image.iptcData = iptcData;
 			
 			//Parse user arguments and take appropriate action
 			
@@ -109,7 +98,25 @@ int main(int argc, char * const argv[]){
 					switch(option){
 						case 'k':
 							cout << "Keyword Entered: " << arg << endl;
+                            switch(act){
+                                case 'p':
+                                    if (image.iptcData.empty()) {
+				                        std::string error(argv[argc-1]);
+				                        error += ": No IPTC data found in the file";
+				                        throw Exiv2::Error(Exiv2::kerErrorMessage, error);
+			                        }
+			                        Exiv2::IptcData::iterator end = image.iptcData.end();
+			                        for (Exiv2::IptcData::iterator md = image.iptcData.begin(); md != end-1; ++md) {
+			                            std::cout << md->value() << endl;
+			                        }
+                                    break;
+                                default:
+                                cout << "Not yet implemented" << endl;
+                            }
+
+
 							break;
+
 						case 'C':
 							cout << "Creator Name Entered: " << arg << endl;
 							break;
