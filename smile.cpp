@@ -182,21 +182,21 @@ int main(int argc, char * const argv[]){
 							//Metadata options: Keywords, Creator Name, Date and Time, and Title
 				switch(opt){
 					case 'k':{
-						cout << "Keyword Entered: " << arg << endl; 
+						cout << "Keyword Entered: " << arg.at(1) << endl; 
 						option = &keywords;
 						break;
 					}
 					case 'C':{
-						cout << "Creator Name Entered: " << arg << endl;
+						cout << "Creator Name Entered: " << arg.at(1) << endl;
 						
 						break;
 					}
 					case 'd':{
-						cout << "Date and Time Entered: " << arg << endl;
+						cout << "Date and Time Entered: " << arg.at(1) << endl;
 						break;
 					}
 					case 'T':{ 
-						cout << "Title Entered: " << arg << endl;
+						cout << "Title Entered: " << arg.at(1) << endl;
 						break;
 					}
 					default:{
