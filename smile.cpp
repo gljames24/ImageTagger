@@ -150,13 +150,36 @@ int main(int argc, char * const argv[]){
 			if(regex_match(argv[x],regex("-(p|r|R|a)"))){
 				act = static_cast<action>(argv[x][1]);
 				cout << "Action Option: " << (char)act << endl;
+							//Main argument actions Print, Remove, Clear, and Append
+				switch(act){
+	               	case 'p':{
+	               		option->print(&image);
+	                    break;
+	                }
+	                case 'R':{
+	                   	cout << "Remove All:Not yet implemented" << endl;
+	                  	option->removeAll(&image);
+	                  	break;
+	                }
+	                case 'a':{
+	                   	cout << "Append:Not yet implemented" << endl;
+	                   	option->append(&image,arg);
+	                   	break;
+	                }
+	                case 'r':{
+	                   	cout << "Remove:Not yet implemented" << endl;
+	                   	option->remove(&image,arg);
+	                   	break;
+	                }
+	                    
+	                default:{
+	                  	cerr << "Error, improper action" << endl;
+	               	}
+	            }
 			}
 			else if (arg.length() == 2 && arg.at(0) == '-'){
 				opt = arg.at(1);
-			}
-			//Take in arguments for selected option
-			else{
-				//Metadata options: Keywords, Creator Name, Date and Time, and Title
+							//Metadata options: Keywords, Creator Name, Date and Time, and Title
 				switch(opt){
 					case 'k':{
 						cout << "Keyword Entered: " << arg << endl; 
@@ -180,32 +203,6 @@ int main(int argc, char * const argv[]){
 						cout << "invalid option" << endl;
 					}
 				}
-				//Main argument actions Print, Remove, Clear, and Append
-				switch(act){
-                   	case 'p':{
-                   		option->print(&image);
-                        break;
-                    }
-                    case 'R':{
-                       	cout << "Remove All:Not yet implemented" << endl;
-                       	option->removeAll(&image);
-                       	break;
-                    }
-                    case 'a':{
-                       	cout << "Append:Not yet implemented" << endl;
-                       	option->append(&image,arg);
-                       	break;
-                    }
-                    case 'r':{
-                       	cout << "Remove:Not yet implemented" << endl;
-                       	option->remove(&image,arg);
-                       	break;
-                    }
-                        
-                    default:{
-                      	cerr << "Error, improper action" << endl;
-                   	}
-                }
 			}
 		}
 		image.raw.close();
