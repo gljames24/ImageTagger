@@ -10,9 +10,6 @@ using namespace std;
 
 #define sigLen 4
 
-bool isJPEG(string header, string ext);
-bool isPNG(string header, string ext);
-
 enum extension{jpeg,png,err};
 enum action{Print = 'p', Remove = 'r',Clear = 'R', Append = 'a'};//For action taken on image metadata: Print, Remove, Clear, and Append
 
@@ -27,6 +24,10 @@ struct Image{
 	string title;
 	vector<string> keywords;
 };
+
+bool isJPEG(string header, string ext);
+bool isPNG(string header, string ext);
+void printIPTC(struct Image *image);
 
 int main(int argc, char * const argv[]){
 	//Check if there are enough arguments
@@ -76,12 +77,16 @@ int main(int argc, char * const argv[]){
 			//Parse user arguments and take appropriate action
 			
 			//Main argument actions Print, Remove, Clear, and Append
-			enum action act = Print;
+			enum action act = Print;//Print used as default behavior
 			int x=1;
 			if(regex_match(argv[x],regex("-(p|r|R|a)"))){
-				act = static_cast<action>(argv[x][1]);
+				enum action act = static_cast<action>(argv[x][1]);
 				cout << "Action Option: " << (char)act << endl;
 				x++;
+			}
+			else{
+				printIPTC(&image);
+				return 0;
 			}
 			
 			//Metadata options: Keywords, Creator Name, Date and Time, and Title
@@ -96,38 +101,41 @@ int main(int argc, char * const argv[]){
 				//Take in arguments for selected option
 				else{
 					switch(option){
-						case 'k':
+						case 'k':{
 							cout << "Keyword Entered: " << arg << endl;
                             switch(act){
-                                case 'p':
-                                    if (image.iptcData.empty()) {
-				                        std::string error(argv[argc-1]);
-				                        error += ": No IPTC data found in the file";
-				                        throw Exiv2::Error(Exiv2::kerErrorMessage, error);
-			                        }
-			                        Exiv2::IptcData::iterator end = image.iptcData.end();
-			                        for (Exiv2::IptcData::iterator md = image.iptcData.begin(); md != end-1; ++md) {
-			                            std::cout << md->value() << endl;
-			                        }
+                                case 'p':{
+                                	printIPTC(&image);
+                                	return 0;
                                     break;
-                                default:
-                                cout << "Not yet implemented" << endl;
+                                }
+                                case 'a':{
+                                	cout << "Not yet implemented" << endl;
+                                	break;
+                                }
+                                default:{
+                                	cout << "Not yet implemented" << endl;
+                               	}
                             }
 
 
 							break;
-
-						case 'C':
+						}
+						case 'C':{
 							cout << "Creator Name Entered: " << arg << endl;
 							break;
-						case 'd':
+						}
+						case 'd':{
 							cout << "Date and Time Entered: " << arg << endl;
 							break;
-						case 'T':
+						}
+						case 'T':{ 
 							cout << "Title Entered: " << arg << endl;
 							break;
-						default:
+						}
+						default:{
 							cout << "invalid option" << endl;
+						}
 							
 					}
 				}
@@ -136,8 +144,8 @@ int main(int argc, char * const argv[]){
 		else cerr << "Your file couldn't be opened" << endl;
 	}
 	catch (Exiv2::AnyError& e) {
-    std::cout << "Caught Exiv2 exception '" << e << "'\n";
-    return -1;
+    	std::cout << "Caught Exiv2 exception '" << e << "'\n";
+    	return -1;
 	}
 	image.raw.close();
 	return 0;
@@ -149,4 +157,13 @@ bool isJPEG(string header, string ext){
 }
 bool isPNG(string header, string ext){
   return header.substr(1,3) == "PNG" && ext == "png";
+}
+
+void printIPTC(struct Image *image){
+	 if (!image->iptcData.empty()) {
+		Exiv2::IptcData::iterator end = image->iptcData.end();
+		for (Exiv2::IptcData::iterator md = image->iptcData.begin(); md != end-1; ++md) {
+			std::cout << md->value() << endl;
+		}
+	}
 }
