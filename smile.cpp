@@ -21,9 +21,9 @@ class Image{
 		enum extension ext;
 		Exiv2::Image::AutoPtr metadata;
 		Exiv2::IptcData iptcData;
-		string creator = "";
-		string time = "";
-		string title = "";
+		string creator;
+		string time;
+		string title;
 		vector<string> keywords;
 		
 		//Member Functions
@@ -71,15 +71,21 @@ class Image{
   			assert (metadata.get() != 0);
 			metadata->readMetadata();
 	 
-			Exiv2::IptcData &iptcDataR = this->metadata->iptcData();
+			Exiv2::IptcData &iptcDataR = metadata->iptcData();
 			iptcData = iptcDataR;
 			
+			if (!iptcData.empty()) {
+				Exiv2::IptcData::iterator end = iptcData.end();
+				for (Exiv2::IptcData::iterator md = iptcData.begin(); md != end-1; ++md) {
+					keywords.push_back(md->value().toString());
+				}
+			}
 			
 		}
 		else{
-			raw.close();
 			cerr << "Your file couldn't be opened" << endl;
 		}	
+		raw.close();
 	}
 	
 };
@@ -106,7 +112,7 @@ class Keywords: public Option{
 	
 	}
 	void removeAll(Image *image){
-	
+		
 	}
 };
 
