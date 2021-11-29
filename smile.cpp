@@ -43,7 +43,7 @@ class Image{
 //			}
 //		}
 		
-
+	//Get all member variables from path
 	void init(string path){//Couldn't get image to use a constructor
 		this->path = path;
 	
@@ -73,6 +73,8 @@ class Image{
 	 
 			Exiv2::IptcData &iptcDataR = this->metadata->iptcData();
 			iptcData = iptcDataR;
+			
+			
 		}
 		else{
 			raw.close();
@@ -128,7 +130,6 @@ int main(int argc, char * const argv[]){
 		Image image;
 		image.init(argv[argc-1]);
 			
-		//Parse user arguments and take appropriate action
 		//Keywords and Print used as default behavior
 		Keywords keywords;
 		Option option;
@@ -143,7 +144,7 @@ int main(int argc, char * const argv[]){
 		
 		char opt = 'q';//Unused option to avoid undefined behavior
 		
-		//Read in arguments until another option is found or until it reaches the last/path argument
+		//Parse user arguments and take appropriate action by reading arguments until another option is found or until it reaches the last/path argument
 		for(int x=1;x<argc-1;x++){
 			string arg = argv[x];
 			
