@@ -44,43 +44,43 @@ class Image{
 //		}
 		
 	//Get all member variables from path
-//	void init(string path){//Couldn't get image to use a constructor
-//		this->path = path;
-//	
-//			//Open Image path
-//		raw.open(this->path, ios::in | ios::app);  //Open file using user-defined path
-//		if (raw.is_open()){
-//			//Check file signature and extension
-//			char header[sigLen];
-//			raw.read(header,sigLen);
-//			string ext = this->path.substr(this->path.find_last_of(".")+1);
-//	  		ext = this->isJPEG(header, ext)? jpeg : this->isPNG(header, ext)? png : err;
-//		  	switch (ext){
-//		  		case jpeg:
-//		  			cout << "This file is a JPEG" << endl;
-//		  			break;
-//		  		case png:
-//		  			 cout << "This file is a PNG" << endl;
-//		  			 break;
-//		  		default:
-//		  			cout << "This file is not a recognized image" << endl;
-//					//return -1;
-//			}
-//				
-//			metadata = Exiv2::ImageFactory::open(this->path);
-//  			assert (metadata.get() != 0);
-//			metadata->readMetadata();
-//	 
-//			Exiv2::IptcData &iptcDataR = this->metadata->iptcData();
-//			iptcData = iptcDataR;
-//			
-//			
-//		}
-//		else{
-//			raw.close();
-//			cerr << "Your file couldn't be opened" << endl;
-//		}	
-//	}
+	Image(string path){//Couldn't get image to use a constructor
+		this->path = path;
+	
+			//Open Image path
+		raw.open(this->path, ios::in | ios::app);  //Open file using user-defined path
+		if (raw.is_open()){
+			//Check file signature and extension
+			char header[sigLen];
+			raw.read(header,sigLen);
+			string extS = this->path.substr(this->path.find_last_of(".")+1);
+	  		ext = this->isJPEG(header, extS)? jpeg : this->isPNG(header, extS)? png : err;
+		  	switch (ext){
+		  		case jpeg:
+		  			cout << "This file is a JPEG" << endl;
+		  			break;
+		  		case png:
+		  			 cout << "This file is a PNG" << endl;
+		  			 break;
+		  		default:
+		  			cout << "This file is not a recognized image" << endl;
+					//return -1;
+			}
+				
+			metadata = Exiv2::ImageFactory::open(this->path);
+  			assert (metadata.get() != 0);
+			metadata->readMetadata();
+	 
+			Exiv2::IptcData &iptcDataR = this->metadata->iptcData();
+			iptcData = iptcDataR;
+			
+			
+		}
+		else{
+			raw.close();
+			cerr << "Your file couldn't be opened" << endl;
+		}	
+	}
 	
 };
 
@@ -125,8 +125,7 @@ int main(int argc, char * const argv[]){
 		#endif
 		
 		//Create Image object
-		Image image;
-		//image.init(argv[argc-1]);
+		Image image(argv[argc-1]);
 			
 		//Keywords and Print used as default behavior
 		Keywords keywords;
