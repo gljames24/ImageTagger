@@ -34,14 +34,6 @@ class Image{
 		bool isPNG(string header, string ext){
   			return header.substr(1,3) == "PNG" && ext == "png";
 		}
-//		void getIPTCdata(struct Image *image){
-//			if (!image->iptcData.empty()) {
-//				Exiv2::IptcData::iterator end = image->iptcData.end();
-//				for (Exiv2::IptcData::iterator md = image->iptcData.begin(); md != end-1; ++md) {
-//					std::cout << md->value() << endl;
-//				}
-//			}
-//		}
 		
 	//Get all member variables from path
 	Image(string path){//Couldn't get image to use a constructor
@@ -92,18 +84,21 @@ class Image{
 
 class Option{	
 	public:
-	virtual void print(Image *image);
-	virtual void append(Image *image,string tags);
-	virtual void remove(Image *image,string tags);
-	virtual void removeAll(Image *image);
+	virtual void print(Image *image){}
+	virtual void append(Image *image,string tags){}
+	virtual void remove(Image *image,string tags){}
+	virtual void removeAll(Image *image){}
 };
 
 class Keywords: public Option{
 	public:
 	void print(Image *image){
-		for(string keyword: image->keywords){
-			cout << keyword << endl;
+		if(image->keywords.size()>=1){
+			for(string keyword: image->keywords){
+				cout << keyword << endl;
+			}
 		}
+		
 	}
 	void append(Image *image,string tags){
 	
