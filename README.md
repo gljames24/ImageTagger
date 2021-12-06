@@ -5,7 +5,7 @@ Group Members: James Garrard and Seth Stephenson
   This application's goal is to make inserting and retrieving image metadata as easy as possible. This requires being able to manage IPTC data. Currently the only supported files will be JPG/JPEG and PNG.
 
 This program relies on the exiv2 library.
-Install the library with *apt install libexiv2-dev* on linux or your respective package manager
+Install the library with *apt install libexiv2-dev* on linux or your respective package manager. \n
 Compile with g++ -std=c++11 smile.cpp -o smile -I/usr/local/include -L/usr/local/lib -lexiv2
 
 The program will take in input following this convention: 
