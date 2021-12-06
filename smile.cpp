@@ -35,7 +35,7 @@ class Image{
   			return header.substr(1,3) == "PNG" && ext == "png";
 		}
 		
-	//Get all member variables from path
+	//Image Constructor
 	Image(string path){//Couldn't get image to use a constructor
 		this->path = path;
 	
@@ -69,6 +69,7 @@ class Image{
 			if (!iptcData.empty()) {
 				Exiv2::IptcData::iterator end = iptcData.end();
 				for (Exiv2::IptcData::iterator md = iptcData.begin(); md != end-1; ++md) {
+					
 					keywords.push_back(md->value().toString());
 				}
 			}
@@ -82,6 +83,8 @@ class Image{
 	
 };
 
+
+//Main argument actions Print, Remove, Clear, and Append
 class Option{	
 	public:
 	virtual void print(Image *image){}
@@ -90,6 +93,7 @@ class Option{
 	virtual void removeAll(Image *image){}
 };
 
+//Metadata options: Keywords, Creator Name, Date and Time, and Title
 class Keywords: public Option{
 	public:
 	void print(Image *image){
@@ -98,7 +102,65 @@ class Keywords: public Option{
 				cout << keyword << endl;
 			}
 		}
+	}
+	void append(Image *image,string tags){
+	
+	}
+	void remove(Image *image,string tags){
+	
+	}
+	void removeAll(Image *image){
 		
+	}
+};
+
+class Creator: public Option{
+	public:
+	void print(Image *image){
+		if(image->keywords.size()>=1){
+			for(string keyword: image->keywords){
+				cout << keyword << endl;
+			}
+		}
+		
+	}
+	void append(Image *image,string tags){
+	
+	}
+	void remove(Image *image,string tags){
+	
+	}
+	void removeAll(Image *image){
+		
+	}
+};
+
+class Date: public Option{
+	public:
+	void print(Image *image){
+		if(image->keywords.size()>=1){
+			for(string keyword: image->keywords){
+				cout << keyword << endl;
+			}
+		}
+		
+	}
+	void append(Image *image,string tags){
+	
+	}
+	void remove(Image *image,string tags){
+	
+	}
+	void removeAll(Image *image){
+		
+	}
+};
+
+class Title: public Option{
+	public:
+	void print(Image *image){
+		
+		}
 	}
 	void append(Image *image,string tags){
 	
@@ -129,8 +191,11 @@ int main(int argc, char * const argv[]){
 		Image image(argv[argc-1]);
 			
 		//Keywords and Print used as default behavior
-		Keywords keywords;
 		Option *option;
+		Keywords keywords;
+		Creator creator;
+		Date date;
+		Title title;
 		option = &keywords;
 		enum action act = Print;
 		
@@ -150,7 +215,7 @@ int main(int argc, char * const argv[]){
 			if(regex_match(argv[x],regex("-(p|r|R|a)"))){
 				act = static_cast<action>(argv[x][1]);
 				cout << "Action Option: " << (char)act << endl;
-							//Main argument actions Print, Remove, Clear, and Append
+				//Main argument actions Print, Remove, Clear, and Append
 				switch(act){
 	               	case 'p':{
 	               		option->print(&image);
@@ -179,7 +244,7 @@ int main(int argc, char * const argv[]){
 			}
 			else if (arg.length() == 2 && arg.at(0) == '-'){
 				opt = arg.at(1);
-							//Metadata options: Keywords, Creator Name, Date and Time, and Title
+				//Metadata options: Keywords, Creator Name, Date and Time, and Title
 				switch(opt){
 					case 'k':{
 						cout << "Keyword Entered: " << arg.at(1) << endl; 
@@ -188,15 +253,17 @@ int main(int argc, char * const argv[]){
 					}
 					case 'C':{
 						cout << "Creator Name Entered: " << arg.at(1) << endl;
-						
+						option = &creator;
 						break;
 					}
 					case 'd':{
 						cout << "Date and Time Entered: " << arg.at(1) << endl;
+						option = &date;
 						break;
 					}
 					case 'T':{ 
 						cout << "Title Entered: " << arg.at(1) << endl;
+						option = &title;
 						break;
 					}
 					default:{
