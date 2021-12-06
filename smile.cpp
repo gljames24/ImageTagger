@@ -67,6 +67,10 @@ class Image{
 			iptcData = iptcDataR;
 
 			creator = iptcData["Iptc.Application2.Byline"].toString();
+			date = iptcData["Iptc.Application2.DateCreated"].toString();
+			time = iptcData["Iptc.Application2.TimeCreated"].toString();
+			title = iptcData["Iptc.Application2.Headline"].toString();
+			caption = iptcData["Iptc.Application2.Caption"].toString();
 
 
 
@@ -84,7 +88,7 @@ class Image{
 class Option{
 	public:
 	virtual void print(Image *image){}
-	virtual void append(Image *image,string tags){}
+	virtual void append(Image *image,string tag){}
 	virtual void remove(Image *image){}
 };
 
@@ -99,7 +103,7 @@ class Keywords: public Option{
 		}
 	}
 	void append(Image *image,string tag){
-
+		image->keywords.push_back(tag);
 	}
 	void remove(Image *image){
 
@@ -215,52 +219,15 @@ int main(int argc, char * const argv[]){
 		}
 
 		char opt = 'q';//Unused option to avoid undefined behavior
-		bool fileChanged= false, verbose= false, k= false, C= false, d= false, t= false, T= false, c = false;
+		bool fileChanged = false, verbose = false, k = false, C = false, d = false, t = false, T = false, c = false;
 		//Parse user arguments and take appropriate action by reading arguments until another option is found or until it reaches the last/path argument
 		for(int x=1;x<argc-1;x++){
 			string arg = argv[x];
 
-			//Remove, remove all, or append
-			if(regex_match(argv[x],regex("-(p|r|a|v)"))){
-				act = static_cast<action>(argv[x][1]);
-				//cout << "Action Option: " << (char)act << endl;
-				//Main argument actions Print, Remove, Clear, and Append
-				switch(act){
-					case 'v':{
-						verbose = true;
-						break;
-					}
-	               	case 'p':{
-	               		if (verbose)
-	               		cout << "Action Option: Print" << endl;
-	               		option->print(&image);
-	                    break;
-	                }
-	                case 'a':{
-	                	if (verbose)
-	                   	cout << "Action Option: Append" << endl;
-	                   	x++;
-	                   	option->append(&image,argv[x]);
-	                   	fileChanged = true;
-	                   	break;
-	                }
-	                case 'r':{
-	                	if (verbose)
-	                   	cout << "Action Option: Remove" << endl;
-	                   	x++;
-	                   	option->remove(&image);
-	                   	fileChanged = true;
-	                   	break;
-	                }
-
-	                default:{
-	                  	cerr << "Action Option: Error, improper action" << endl;
-	               	}
-	            }
-			}
-			else if (arg.length() == 2 && arg.at(0) == '-'){
+			//Metadata options: Keywords, Creator Name, Date and Time, and Title
+			if (regex_match(argv[x],regex("-(k|C|d|t|T|c)"))){
 				opt = arg.at(1);
-				//Metadata options: Keywords, Creator Name, Date and Time, and Title
+
 				switch(opt){
 					case 'k':{
 						if (verbose)
@@ -309,20 +276,70 @@ int main(int argc, char * const argv[]){
 					}
 				}
 			}
+			//Remove, remove all, or append
+			else{
+				if(regex_match(argv[x],regex("-(p|r|a|v)"))){
+					act = static_cast<action>(argv[x][1]);
+					//cout << "Action Option: " << (char)act << endl;
+				}
+				//Main argument actions Print, Remove, Clear, and Append
+				switch(act){
+					case 'v':{
+						verbose = true;
+						break;
+					}
+	               	case 'p':{
+	               		if (verbose)
+	               		cout << "Action Option: Print" << endl;
+	               		option->print(&image);
+	                    break;
+	                }
+	                case 'a':{
+	                	if (verbose)
+	                   	cout << "Action Option: Append" << endl;
+	                   	x++;
+	                   	if(x==argc-1)
+	                   	break;
+	                   	option->append(&image,argv[x]);
+	                   	fileChanged = true;
+	                   	break;
+	                }
+	                case 'r':{
+	                	if (verbose)
+	                   	cout << "Action Option: Remove" << endl;
+	                   	x++;
+	                   	if(x==argc-1)
+	                   	break;
+	                   	option->remove(&image);
+	                   	fileChanged = true;
+	                   	break;
+	                }
+
+	                default:{
+	                  	cerr << "Action Option: Error, improper action" << endl;
+	               	}
+	            }
+			}
 		}
 
 		if (fileChanged){
 			//Add member variable to iptcData class
+			if(k){
+				for(string keyword: image.keywords){
+					image.iptcData["Iptc.Application2.Keywords"] = keyword;
+				}
+			}
+
 			if(C)
-			image.iptcData["Iptc.Application2.Byline"] = image.creator;
+				image.iptcData["Iptc.Application2.Byline"] = image.creator;
 			if(d)
-			image.iptcData["Iptc.Application2.DateCreated"] = image.date;
-			if(t)
-			image.iptcData["Iptc.Envelope.TimeSent"] = image.time;
+				image.iptcData["Iptc.Application2.DateCreated"] = image.date;
 			if(T)
-			image.iptcData["Iptc.Application2.Headline"] = image.title;
+				image.iptcData["Iptc.Application2.Headline"] = image.title;
+			if(t)
+				image.iptcData["Iptc.Application2.TimeCreated"] = image.time;
 			if(c)
-			image.iptcData["Iptc.Application2.Caption"] = image.caption;
+				image.iptcData["Iptc.Application2.Caption"] = image.caption;
 
 			// Set IPTC data and write it to the file
     		image.metadata->setIptcData(image.iptcData);
