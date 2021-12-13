@@ -93,6 +93,8 @@ class Option{
 };
 
 //Metadata options: Keywords, Creator Name, Date and Time, and Title
+
+//This needs to be fixed in the image class to allow for multiple keywords 
 class Keywords: public Option{
 	public:
 	void print(Image *image){
@@ -324,6 +326,7 @@ int main(int argc, char * const argv[]){
 
 		if (fileChanged){
 			//Add member variable to iptcData class
+			//These need to be moved into their respective derived class as member functions.
 			if(k){
 				for(string keyword: image.keywords){
 					image.iptcData["Iptc.Application2.Keywords"] = keyword;
